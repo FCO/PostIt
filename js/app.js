@@ -1,3 +1,24 @@
+var DB = {};
+
+window.indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.msIndexedDB;
+
+DB.indexedDB = {};
+DB.indexedDB.db = null;
+
+// Handle the prefix of Chrome to IDBTransaction/IDBKeyRange.
+if ('webkitIndexedDB' in window) {
+  window.IDBTransaction = window.webkitIDBTransaction;
+  window.IDBKeyRange = window.webkitIDBKeyRange;
+}
+
+indexedDB.db = null;
+// Hook up the errors to the console so we could see it.
+// In the future, we need to push these messages to the user.
+indexedDB.onerror = function(e) {
+  console.error(e);
+};
+
+
 App = Em.Application.create({
 
   // When everything is loaded.
@@ -33,7 +54,7 @@ App = Em.Application.create({
       });
     });
     $("button#new").click(function(){
-      App.postItList.pushObject(
+      App.postItList.pushPostit(
         App.Model.create({content: "Bla Ble Bli Blo Blu"})
       );
     });
@@ -51,23 +72,68 @@ App = Em.Application.create({
 
     // Call the superclass's `ready` method.
     this._super();
-  }
+
+    var v = 1;
+    var request = indexedDB.open("postit", v);
+    
+    request.onupgradeneeded = function(e) {
+      var db = request.result;
+      var store = db.createObjectStore("postit", {keyPath: "id"});  
+    };
+  
+    request.onsuccess = function(e) {    
+      DB.indexedDB.db = e.target.result;
+      //DB.indexedDB.getAllTodoItems();
+    };
+  
+    request.onfailure = DB.indexedDB.onerror;
+  
+ }
+
 });
+
+var postit_id = 0;
 
 App.Model = Ember.Object.extend({
    content: "bla...",
-   id:      0,
+   id:      postit_id,
    angle:   0,
    x:       100,
    y:       200,
    init:    function() {
       this.set("angle", Math.floor(Math.random() * 60) - 30);
-      App.Model.id++;
+      this.id = ++postit_id;
+      //this.save();
    },
+   save: function() {
+     var db = DB.indexedDB.db;
+     var trans = db.transaction('postit', 'readwrite');
+     var store = trans.objectStore('postit');
+
+     var request = store.put({
+       content: this.content,
+       id:      this.id,
+       angle:   this.angle,
+       x:       this.x,
+       y:       this.y,
+     });
+
+     request.oncomplete = function(e) {
+       //DB.indexedDB.getAllTodoItems();
+     };
+
+     request.onerror = function(e) {
+       console.error("Error Adding: ", e);
+     };
+   }
 });
 
 App.PostItList = Ember.ArrayController.extend({
    content: [],
+   pushPostit: function(postit) {
+      this.pushObject(postit);
+      postit.save();
+   }
 });
 
 App.PostIt = Ember.View.extend({
@@ -76,8 +142,19 @@ App.PostIt = Ember.View.extend({
    classNames:        "postit",
    tagName:           "div",
    angle:             null,
-   x:                 0,
-   y:                 0,
+   get x()            {
+	   return model.x;
+   },
+   set x(data)        {
+	   return model.x = data;
+   },
+   get y()            {
+	   return model.y;
+   },
+   set y(data)        {
+	   return model.x = data;
+   },
+   model:             null,
    init:              function() {
       this.on("didInsertElement", function(){
          var view = this;
@@ -143,74 +220,3 @@ App.PostIt = Ember.View.extend({
       });
    },
 });
-
-
-
-
-
-
-
-
-
-
-
-var html5rocks = {};
-html5rocks.webdb = {};
-html5rocks.webdb.db = null;
-
-html5rocks.webdb.open = function() {
-  var dbSize = 5 * 1024 * 1024; // 5MB
-  html5rocks.webdb.db = openDatabase("PostIts", "1.0", "Lembretes", dbSize);
-}
-
-html5rocks.webdb.createTable = function() {
-  var db = html5rocks.webdb.db;
-  db.transaction(function(tx) {
-    tx.executeSql("CREATE TABLE IF NOT EXISTS postit(ID INTEGER PRIMARY KEY ASC, content TEXT, x NUMBER, y NUMBER, angle NUMBER)", []);
-  });
-}
-
-html5rocks.webdb.addPostIt = function(content, x, y, angle) {
-  var db = html5rocks.webdb.db;
-  db.transaction(function(tx){
-    tx.executeSql(
-        "INSERT INTO postit(content, x, y, angle) VALUES (?, ?, ?, ?)",
-        [content, x, y, angle],
-        html5rocks.webdb.onSuccess,
-        html5rocks.webdb.onError
-    );
-   });
-}
-
-html5rocks.webdb.onError = function(tx, e) {
-  alert("There has been an error: " + e.message);
-}
-
-html5rocks.webdb.onSuccess = function(tx, r) {
-  // re-render the data.
-  //html5rocks.webdb.getAllTodoItems(loadTodoItems);
-}
-
-
-html5rocks.webdb.getAllPostIts = function(renderFunc) {
-  var db = html5rocks.webdb.db;
-  db.transaction(function(tx) {
-    tx.executeSql("SELECT * FROM postit", [], renderFunc,
-        html5rocks.webdb.onError);
-  });
-}
-
-html5rocks.webdb.deletePostIt = function(id) {
-  var db = html5rocks.webdb.db;
-  db.transaction(function(tx){
-    tx.executeSql("DELETE FROM todo WHERE ID=?", [id],
-        html5rocks.webdb.onSuccess,
-        html5rocks.webdb.onError);
-    });
-}
-
-function init() {
-  html5rocks.webdb.open();
-  html5rocks.webdb.createTable();
-  html5rocks.webdb.getAllTodoItems(loadTodoItems);
-}

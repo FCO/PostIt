@@ -1,0 +1,70 @@
+@font-face {
+    font-family: 'CalligraffitiRegular';
+    src: url('../fonts/Calligraffiti-webfont.eot');
+    src: url('../fonts/Calligraffiti-webfont.eot?#iefix') format('embedded-opentype'),
+	 url('../fonts/Calligraffiti-webfont.woff') format('woff'),
+	 url('../fonts/Calligraffiti-webfont.ttf') format('truetype'),
+	 url('../fonts/Calligraffiti-webfont.svg#CalligraffitiRegular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+.postit {
+   width:                       150px;
+   height:                      150px;
+   background-color:            gold;
+   padding:                     5px;
+   -webkit-box-shadow:          1px 3px 10px 1px rgba(0, 0, 0, 0.2);
+   -moz-box-shadow:             1px 3px 10px 1px rgba(0, 0, 0, 0.2);
+   box-shadow:                  1px 3px 10px 1px rgba(0, 0, 0, 0.2);
+   position:                    absolute;
+   transform-style:             preserve-3d;
+   -moz-transform-style:        preserve-3d;
+   -webkit-transform-style: 	e("preserve-3d");
+   transition:			1s ease-in-out;
+}
+
+.postit textarea {
+   background-color: gold;
+   resize:           none;
+   font-family:      CalligraffitiRegular;
+}
+
+div.postit div.container {
+     backface-visibility:         hidden;
+     -webkit-backface-visibility: hidden;
+     -moz-backface-visibility:    hidden;
+}
+
+pre.content {
+   width:       145px;
+   height:      145px;
+   overflow:    auto;
+   font-family: CalligraffitiRegular;
+   -moz-user-select: -moz-none;
+   -khtml-user-select: none;
+   -webkit-user-select: none;
+   -ms-user-select: none;
+   user-select: none;
+}
+
+.postit .config-icon {
+   position: absolute;
+   bottom:   10px;
+   right:    10px;
+   cursor:   pointer;
+}
+
+div.postit div.config {
+   position:                    absolute;
+   top:                         5px;
+   right:                       5px;
+   width:                       145px;
+   height:                      145px;
+   background-color:            white;
+   transform:                   rotateY(180deg);
+   -moz-transform:              rotateY(180deg);
+   -webkit-transform:           rotateY(180deg);
+   backface-visibility:         hidden;
+   -webkit-backface-visibility: hidden;
+   -moz-backface-visibility:    hidden;
+}
