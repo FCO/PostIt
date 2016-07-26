@@ -31,60 +31,6 @@ time, mark, audio, video {
   vertical-align: baseline;
 }
 
-.postit {
-   width:                       150px;
-   height:                      150px;
-   background-color:            gold;
-   padding:                     5px;
-   -webkit-box-shadow:          1px 3px 10px 1px rgba(0, 0, 0, 0.2);
-   -moz-box-shadow:             1px 3px 10px 1px rgba(0, 0, 0, 0.2);
-   box-shadow:                  1px 3px 10px 1px rgba(0, 0, 0, 0.2);
-   position:                    absolute;
-   transform-style:             preserve-3d;
-   -moz-transform-style:        preserve-3d;
-   -webkit-transform-style:  e("preserve-3d");
-}
-
-.postit textarea {
-   background-color: gold;
-   resize:           none;
-   font-family:      CalligraffitiRegular;
-}
-
-div.postit div.container {
-     backface-visibility:         hidden;
-     -webkit-backface-visibility: hidden;
-     -moz-backface-visibility:    hidden;
-}
-
-pre.content {
-   width:       145px;
-   height:      145px;
-   overflow:    auto;
-   font-family: CalligraffitiRegular;
-}
-
-.postit .config-icon {
-   position: absolute;
-   bottom:   10px;
-   right:    10px;
-   cursor:   pointer;
-}
-
-div.postit div.config {
-   position:                    absolute;
-   top:                         5px;
-   right:                       5px;
-   width:                       145px;
-   height:                      145px;
-   background-color:            white;
-   transform:                   rotateY(180deg);
-   -moz-transform:              rotateY(180deg);
-   -webkit-transform:           rotateY(180deg);
-   backface-visibility:         hidden;
-   -webkit-backface-visibility: hidden;
-   -moz-backface-visibility:    hidden;
-}
 
 article, aside, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section {
@@ -110,6 +56,7 @@ hr { display: block; height: 1px; border: 0; border-top: 1px solid #ccc; margin:
 input, select { vertical-align: middle; }
 
 body {
+   display:			block;
    font:                       13px/1.231 sans-serif;
    *font-size:                 small;
    background:                 url("../img/cortica.gif");
