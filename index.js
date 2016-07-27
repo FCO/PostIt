@@ -21,16 +21,16 @@ class PostIt {
 		this.x			= x || 0;
 		this.y			= y || 0;
 		this.ang		= ang || Math.random() * 60 - 30;
-		this.fixStyle.opacity	= 0;
-		this.divStyle.transition= "0.5s ease-in-out";
+		this.divStyle.opacity	= 0;
+		this.divStyle.transition= "1s ease-in-out";
 
 		this.addListeners();
 
 		this.dom = this.shadow.appendChild(this.dom);
 		this.save();
-		this.BUILT	= new Promise(acc => setTimeout(acc, 10))
+		this.BUILT	= new Promise(acc => setTimeout(acc, 100))
 			.then(() => {
-				this.fixStyle.opacity = 1;
+				this.divStyle.opacity = 1;
 				this.rotate(this.ang);
 				return this;
 			})
