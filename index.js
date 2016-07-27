@@ -1,42 +1,5 @@
 "use strict";
 
-function openDatabase() {
-	/*
-	window.indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.msIndexedDB;
-	if(!(IDBTransaction in window))
-		window.IDBTransaction = window.webkitIDBTransaction;
-	if(!(IDBKeyRange in window))
-		window.IDBKeyRange = window.webkitIDBKeyRange;
-
-	if (!window.indexedDB) {
-		    window.alert("Your browser doesn't support a stable version of IndexedDB. Such and such feature will not be available.");
-	}
-	*/
-	return new Promise((acc, rej) => {
-		var version	= 2;
-		var dbName	= "db";
-		var req = window.indexedDB.open(dbName, version);
-
-		req.onupgradeneeded = ev => {
-			console.log(ev);
-			var db = ev.target.result;
-			db.onerror = console.error;
-			if(ev.oldVersion == 0)
-				db.createObjectStore("postit", {keyPath: "id"});  
-		};
-
-		req.onsuccess = ev => {
-			var db = ev.target.result;
-			acc(db);
-		};
-
-		req.onerror = err => {
-			console.error(err);
-			rej(err);
-		}
-	});
-}
-
 class PostIt {
 	constructor(id, data, x, y, ang) {
 		this.dom		= document.importNode(PostIt.template(), true);
@@ -45,7 +8,7 @@ class PostIt {
 		this.fixStyle		= this.dom.querySelector("pre.content").style;
 
 		//this.shadow		= PostIt.shadowDOM();
-		this.preroot		= document.body.querySelector("div");
+		this.preroot		= PostIt.domBase || document.body.querySelector("div");
 		this.root		= document.createElement("DIV");
 		this.shadow		= this.root.createShadowRoot();
 		this.appendToDom();
@@ -89,7 +52,7 @@ class PostIt {
 	static lastId(id) {
 		if(!PostIt._lastId)		PostIt._lastId = 0;
 		if(id && id > PostIt._lastId)	PostIt._lastId = id;
-		if(!id)				id = PostIt._lastId++;
+		if(!id)				id = ++PostIt._lastId;
 		return id;
 	}
 
@@ -126,6 +89,16 @@ class PostIt {
 		this.divStyle.top	= this.y + "px";
 	}
 
+	get width()	{return 150}
+	get height()	{return 150}
+
+	get center() {
+		return {
+			x: this.x + this.width	/ 2,
+			y: this.y + this.height	/ 2
+		}
+	}
+
 	get json() {
 		return {
 			id	: this.id,
@@ -138,14 +111,38 @@ class PostIt {
 
 	save() {
 		return new Promise((acc, rej) => {
-			//var db = PostIt.db;
-			//var trans = db.transaction('postit', 'readwrite');
-			//var store = trans.objectStore('postit');
+			var db = PostIt.db;
+			var trans = db.transaction('postit', 'readwrite');
+			var store = trans.objectStore('postit');
 
-			//var request		= store.put(this.json);
-			//request.onsuccess	= () => acc(this);
-			//request.onerror		= rej;
+			var request		= store.put(this.json);
+			request.onsuccess	= () => acc(this);
+			request.onerror		= rej;
 		})
+	}
+
+	delete() {
+		return new Promise((acc, rej) => {
+			var db = PostIt.db;
+			var trans = db.transaction('postit', 'readwrite');
+			var store = trans.objectStore('postit');
+
+			var request		= store.delete(this.id);
+			request.onsuccess	= () => acc(this);
+			request.onerror		= rej;
+		})
+	}
+
+	destroy() {
+		this.delete()
+			.then(() => {
+				this.divStyle.opacity = 0;
+				setTimeout(() => this.preroot.removeChild(this.root), 1500);
+			})
+			.catch(err => {
+				console.error(err);
+				Promise.reject(err);
+			})
 	}
 
 	rotate(ang){
@@ -218,6 +215,7 @@ class PostIt {
 		this.data = this.editData.value;
 		this.editStyle.display = "none";
 		this.fixStyle.display = "block";
+		this.save();
 	}
 
 	startDragging(x, y) {
@@ -230,6 +228,7 @@ class PostIt {
 		delete(this.touching);
 		this.save();
 		this.divStyle.transition = "1s ease-in-out";
+		if(this.board) this.board.dropPostIt(this);
 	}
 
 	move(x, y) {
@@ -238,6 +237,7 @@ class PostIt {
 		this.x = x;
 		this.y = y;
 		this.divStyle.transition 	= orig;
+		this.save();
 	}
 }
 

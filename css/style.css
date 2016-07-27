@@ -57,10 +57,15 @@ input, select { vertical-align: middle; }
 
 body {
    display:			block;
-   font:                       13px/1.231 sans-serif;
-   *font-size:                 small;
-   background:                 url("../img/cortica.gif");
-   background-repeat:          repeat;
+   font:			13px/1.231 sans-serif;
+   *font-size:			small;
+   background:			url("../img/cortica.gif");
+   background-repeat:		repeat;
+   -moz-user-select:		-moz-none;
+   -khtml-user-select:		none;
+   -webkit-user-select:		none;
+   -ms-user-select:		none;
+   user-select:			none;
 } 
 
 select, input, textarea, button { font:99% sans-serif; }

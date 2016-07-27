@@ -9,6 +9,8 @@
     font-style: normal;
 }
 .postit {
+   font:                       13px/1.231 sans-serif;
+   *font-size:                 small;
    width:                       150px;
    height:                      150px;
    background-color:            gold;
