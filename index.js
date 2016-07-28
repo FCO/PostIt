@@ -2,6 +2,7 @@
 
 class PostIt {
 	constructor(id, data, x, y, ang) {
+		this.conf		= false;
 		this.dom		= document.importNode(PostIt.template(), true);
 		this.divStyle		= this.dom.querySelector("div.postit").style;
 		this.editStyle		= this.dom.querySelector("div.editableContent").style;
@@ -155,15 +156,33 @@ class PostIt {
 
 	addListeners() {
 		var postit = this.dom.querySelector("div.postit");
+		//var confOK = postit.querySelector("button.confOK");
+		//confOK
+		//	.addEventListener("button.confOK", ev => {
+		//		this.hideConf();
+		//	})
+		//;
+		//postit
+		//	.addEventListener("contextmenu", ev => {
+		//		ev.preventDefault();
+		//		this.showConf();
+		//		return false;
+		//	})
+		//;
 		postit
 			.addEventListener("mousedown", ev => {
-				//ev.preventDefault();
-				this.startDragging(ev.offsetX, ev.offsetY);
+				var isRightMB = false;
+				if ("which" in ev)
+					isRightMB = ev.which == 3; 
+				else if ("button" in ev)
+					isRightMB = ev.button == 2; 
+
+				if(!isRightMB)
+					this.startDragging(ev.offsetX, ev.offsetY);
 			})
 		;
 		postit
 			.addEventListener("mousemove", ev => {
-				ev.preventDefault();
 				if(this.touching) {
 					this.x = ev.clientX - this.touching.x;
 					this.y = ev.clientY - this.touching.y;
@@ -172,21 +191,18 @@ class PostIt {
 		;
 		postit
 			.addEventListener("mouseup", ev => {
-				ev.preventDefault();
 				if(this.touching)
 					this.stopDragging();
 			})
 		;
 		postit
 			.addEventListener("mouseout", ev => {
-				ev.preventDefault();
 				if(this.touching)
 					this.stopDragging();
 			})
 		;
 		postit
 			.addEventListener("dblclick", ev => {
-				ev.preventDefault();
 				this.edit();
 			})
 		;
@@ -196,13 +212,23 @@ class PostIt {
 		;
 		this.dom
 			.querySelector("div.postit")
-			.addEventListener("mouseover", ev => this.rotate(0))
+			.addEventListener("mouseover", ev => {if(!this.conf) this.rotate(0)})
 		;
 		this.dom
 			.querySelector("div.postit")
-			.addEventListener("mouseout", ev => this.rotate(this.ang))
+			.addEventListener("mouseout", ev => {if(!this.conf) this.rotate(this.ang)})
 		;
 
+	}
+
+	hideConf() {
+		this.conf = 0;
+		this.divStyle.transform = "rotateX(0deg)";
+	}
+
+	showConf() {
+		this.conf = true;
+		this.divStyle.transform = "rotateX(180deg)";
 	}
 
 	edit() {
