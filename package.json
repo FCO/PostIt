@@ -1,6 +1,6 @@
 {
   "name": "postit",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "PostIts!",
   "main": "main.js",
   "scripts": {
