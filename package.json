@@ -1,0 +1,23 @@
+{
+	"name": "postit",
+		"version": "0.0.1",
+		"description": "",
+		"main": "index.js",
+		"scripts": {
+			"build": "mkdir -p js && browserify main.js -o js/main.js",
+			"test": "echo \"Error: no test specified\" && exit 1"
+		},
+		"repository": {
+			"type": "git",
+			"url": "git+https://github.com/FCO/PostIt.git"
+		},
+		"author": "",
+		"license": "ISC",
+		"bugs": {
+			"url": "https://github.com/FCO/PostIt/issues"
+		},
+		"homepage": "https://github.com/FCO/PostIt#readme",
+		"devDependencies": {
+			"browserify": "^13.1.0"
+		}
+}
