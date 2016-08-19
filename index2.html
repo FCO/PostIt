@@ -1,0 +1,135 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>React Tutorial</title>
+    <!-- Not present in the tutorial. Just for basic styling. -->
+    <link rel="stylesheet" href="postit.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.2.0/react.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.2.0/react-dom.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.6.16/browser.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/remarkable/1.6.2/remarkable.min.js"></script>
+  </head>
+  <body>
+    <div id="content"></div>
+    <!--<script type="text/babel" src="postit_mod.js"></script>-->
+    <script type="text/babel">
+	var PostIt = React.createClass({
+		toggleEditing: function() {
+			this.setState({editing: !this.state.editing});
+		},
+		changeContent: function() {
+			this.setState({children: this.refs.editableContent.value});
+		},
+		getInitialState: function() {
+			var state = {
+				x:		this.props.x,
+				y:		this.props.y,
+				text:		this.props.text,
+				children:	this.props.children,
+				editing:	false,
+			};
+			return state;
+		},
+		startDrag: function(ev) {
+			console.error(ev);
+			console.log("start drag");
+			this.setState({touching: {x: ev.offsetX, y: ev.offsetY}})
+		},
+		stopDrag: function() {
+			this.setState({touching: undefined})
+		},
+		drag: function(ev) {
+			if(this.state.touching) {
+				var orig = this.refs.postit.style.transition;
+				this.refs.postit.style.transition = "0s";
+				console.log(`${ev.clientX} - ${this.state.touching.x}, ${ev.clientY} - ${this.state.touching.y}`);
+				//this.move(ev.clientX - this.state.touching.x, ev.clientY - this.state.touching.y);
+				this.move(ev.clientX, ev.clientY);
+				//this.refs.postit.style.transition = orig;
+			}
+		},
+		move: function(x, y) {
+			this.setState({x, y})
+		},
+		rawMarkup: function() {
+			var md = new Remarkable();
+			var rawMarkup = md.render(this.state.children.toString());
+			return {__html: rawMarkup};
+		},
+		render: function() {
+			return <div ref="postit" className="postit"
+				style={{
+					left:	this.state.x + "px",
+					top:	this.state.y + "px",
+				}}
+				onDoubleClick={this.toggleEditing}
+				onMouseDown={this.startDrag}
+				onMouseUp={this.stopDrag}
+				onMouseOut={this.stopDrag}
+				onMouseMove={this.drag}
+			>
+			<h6>{"(" + this.state.x + ", " + this.state.y + ")"}</h6>
+				<div className="container">
+					<div id="fixed_content" className="content"
+						dangerouslySetInnerHTML={this.rawMarkup()}
+						style={{
+							display: this.state.editing ? "none" : "block"
+						}}
+					/>
+					<div className="editableContent"
+						style={{
+							display: this.state.editing ? "block" : "none"
+						}}
+					>
+						<textarea ref="editableContent" id="editable_content"
+							style={{
+								border:	"0px",
+								width:	"145px",
+								height:	"145px"
+							}}
+							value={this.state.children}
+							onChange={this.changeContent}
+						/>
+						<br />
+						<button className="update" onClick={this.toggleEditing}>OK</button>
+					</div>
+				</div>
+			</div>
+		}
+	});
+	var Board = React.createClass({
+		getInitialState: function() {
+			return {
+				data: [
+					{x: 30, y: 30, text: "bla **ble** _bli_ ~~blo~~ blu"},
+					{x: 60, y: 60, text: "bla **ble** _bli_ ~~blo~~ blu"},
+					{x: 90, y: 90, text: "bla **ble** _bli_ ~~blo~~ blu"},
+				]
+			}
+		},
+		createNewPostit: function() {
+			var state = this.state;
+			state.data.push({x: 300, y: 300, text: ""});
+			this.setState(state);
+		},
+		render: function() {
+			var postits = this.state.data.map(function(postit) {
+				return (<PostIt x={postit.x} y={postit.y}>{postit.text}</PostIt>);
+			});
+			return (
+				<div className="board">
+					<button onClick={this.createNewPostit}>create postit</button>
+					{postits}
+				</div>
+			)
+		}
+	});
+
+
+	ReactDOM.render(<Board />, document.querySelector("div#content"));
+    </script>
+  </body>
+</html>
